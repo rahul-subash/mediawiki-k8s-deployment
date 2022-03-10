@@ -1,0 +1,1 @@
+# mediawiki-k8s-deployment
