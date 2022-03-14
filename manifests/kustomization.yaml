@@ -5,6 +5,7 @@ namespace: demo-test
 
 resources:
   - hpa.yaml
+  - ingress.yaml
   - mariadb_configmap.yaml
   - mariadb_service.yaml
   - mariadb_statefulset.yaml
