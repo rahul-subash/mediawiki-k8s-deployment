@@ -40,7 +40,7 @@ spec:
               key: MARIADB_PASSWORD
               name: mariadb
         - name: MEDIAWIKI_HOST
-          value: <Host domain or IP> # Update the host domain or IP to access Mediawiki
+          value: 20.85.202.201 # Update the host domain or IP to access Mediawiki
         - name: MEDIAWIKI_WIKI_NAME
           value: My Wiki
         envFrom:
