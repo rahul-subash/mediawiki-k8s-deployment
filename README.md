@@ -60,6 +60,8 @@ kubectl create namespace mediawiki
 kubectl apply -f pvclaim_aks.yaml
 ```
 
+> **Note:** You can also modify the mariadb and mediawiki credentials in [kustomization.yaml](manifests/kustomization.yaml) in the `secretGenerator` section
+
 9. Open Argo CD in your browser and create a new application. You can find the argocd application manifest in the root of this repository.
 
 ![Create Application](images/argocd-create.png)
@@ -67,3 +69,7 @@ kubectl apply -f pvclaim_aks.yaml
 10. Copy and paste the yaml content from [argocd_application.yaml](argocd_application.yaml)
 
 11. Click on Create to deploy the application.
+
+12. You can now access Mediawiki with your DNS or Ingress IP address.
+
+![Mediawiki Welcome](images/mediawiki-welcome.png)
