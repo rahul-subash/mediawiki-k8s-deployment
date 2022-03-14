@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: demo-test
+
+resources:
+  - hpa.yaml
+  - ingress.yaml
+  - mariadb_configmap.yaml
+  - mariadb_service.yaml
+  - mariadb_statefulset.yaml
+  - mediawiki_deployment.yaml
+  - mediawiki_service.yaml
+  - pvclaim.yaml
+
+secretGenerator:
+  - name: mediawiki
+    literals:
+    - MEDIAWIKI_USERNAME=rahulsubash
+    - MEDIAWIKI_EMAIL=s.v.rahul1997@gmail.com
+    - MEDIAWIKI_PASSWORD=Admin@123
+  - name: mariadb
+    literals:
+    - MARIADB_ROOT_PASSWORD=Admin@123
+    - MARIADB_USER=bn_mediawiki
+    - MARIADB_PASSWORD=Admin@123
+    - MARIADB_DATABASE=bitnami_mediawiki
+
+images:
+  - name: docker.io/bitnami/mediawiki
+    newTag: 1.37.1-debian-10-r71
+
+  - name: docker.io/bitnami/mariadb
+    newTag: 10.5.15-debian-10-r11

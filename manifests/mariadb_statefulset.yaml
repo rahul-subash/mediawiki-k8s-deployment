@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/name: mariadb
+  name: mariadb
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mariadb
+  serviceName: mariadb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: docker.io/bitnami/mariadb:10.5.15-debian-10-r11
+        imagePullPolicy: IfNotPresent      
+        ports:
+        - containerPort: 3306
+          name: mysql
+          protocol: TCP
+        envFrom:
+        - secretRef:
+              name: mariadb
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -ec
+            - |
+              password_aux="${MARIADB_ROOT_PASSWORD:-}"
+              if [[ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]]; then
+                  password_aux=$(cat "$MARIADB_ROOT_PASSWORD_FILE")
+              fi
+              mysqladmin status -uroot -p"${password_aux}"
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -ec
+            - |
+              password_aux="${MARIADB_ROOT_PASSWORD:-}"
+              if [[ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]]; then
+                  password_aux=$(cat "$MARIADB_ROOT_PASSWORD_FILE")
+              fi
+              mysqladmin status -uroot -p"${password_aux}"
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+        volumeMounts:
+        - mountPath: /bitnami/mariadb
+          name: data
+        - mountPath: /opt/bitnami/mariadb/conf/my.cnf
+          name: config
+          subPath: my.cnf
+      # dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1001
+      # serviceAccount: mariadb
+      # serviceAccountName: mariadb
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: mariadb-fileserver-claim
+          readOnly: false
+      - name: config
+        configMap:
+          name: mariadb
+  updateStrategy:
+    type: RollingUpdate

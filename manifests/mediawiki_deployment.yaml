@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: mediawiki
+  name: mediawiki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mediawiki
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mediawiki
+    spec:
+      containers:
+      - env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MARIADB_HOST
+          value: mariadb
+        - name: MARIADB_PORT_NUMBER
+          value: "3306"
+        - name: MEDIAWIKI_DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              key: MARIADB_DATABASE
+              name: mariadb
+        - name: MEDIAWIKI_DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              key: MARIADB_USER
+              name: mariadb
+        - name: MEDIAWIKI_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MARIADB_PASSWORD
+              name: mariadb
+        - name: MEDIAWIKI_HOST
+          value: <Host domain or IP> # Update the host domain or IP to access Mediawiki
+        - name: MEDIAWIKI_WIKI_NAME
+          value: My Wiki
+        envFrom:
+        - secretRef:
+              name: mediawiki
+        image: docker.io/bitnami/mediawiki:1.37.1-debian-10-r71
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /api.php?action=query&meta=siteinfo&format=none
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        name: mediawiki
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /api.php?action=query&meta=siteinfo&format=none
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 100
+          periodSeconds: 30
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+        volumeMounts:
+        - mountPath: /bitnami/mediawiki
+          name: mediawiki-data
+          subPath: mediawiki
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1001
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: mediawiki-data
+        persistentVolumeClaim:
+          claimName: mediawiki-fileserver-claim
+          readOnly: false

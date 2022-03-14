@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: mediawiki-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  # tls:
+  # - hosts:
+    # - example.com
+    # secretName: mediawiki-tls
+  rules:
+  - #host: example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: mediawiki
+          servicePort: 80
