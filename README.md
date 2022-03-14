@@ -73,3 +73,5 @@ kubectl apply -f pvclaim_aks.yaml
 12. You can now access Mediawiki with your DNS or Ingress IP address.
 
 ![Mediawiki Welcome](images/mediawiki-welcome.png)
+
+> **Note:** To update the applications you can edit the `images` section in [kustomization.yaml](manifests/kustomization.yaml) by changing the image tags of both mariadb and mediawiki and then commit the changes to your repository. I have followed `GitOps` principle in this demo.
